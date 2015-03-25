@@ -15,5 +15,46 @@ public class SearchCrawler implements Runnable{
   	*/
 
    	private HashMap< String,ArrayList<String> > disallowListCache = new HashMap< String,ArrayList<String> >();
+   	String startUrl;//起始的url
+   	int maxUrl;//最大处理的url数目
+   	String searchString;//搜索关键字
+   	boolean caseSensitive = false;//是否区分大小写
+   	boolean limitHost = false;
 
+   	public SearchCrawler(String startUrl,int maxUrl,String searchString){
+   		this.startUrl = startUrl;
+   		this.maxUrl = maxUrl;
+   		this.searchString = searchString;
+   	}
+
+   	public ArrayList<String> getResult(){
+   		return result;
+   	}
+
+   	public void run(){//启动线程
+   		crawl(startUrl,maxUrl,searchString,limitHost,caseSensitive);
+   	}
+
+   	private URL verifyURL(String url){
+   		if(!url.toLowerCase().startWith("http://")){
+   			return null;
+   		}
+
+   		URL verifiedUrl = null;
+   		try{
+   			verifiedUrl = new URL(url);
+   		}catch(Exception e){
+   			return null;
+   		}
+   		return verifiedUrl;
+   	}
+
+   	private boolean isRobotAllowed(URL urlToCheck){
+   		String host = urlToCheck.getHost().toLowerCase();//get the host of the url
+   		System.out.println("host = " + host );
+
+   		ArrayList<String> disallowList = disallowListCache.get(host);
+   		//如果没有缓存，下载缓存
+   		if(disallowList == null)
+   	}
 }
