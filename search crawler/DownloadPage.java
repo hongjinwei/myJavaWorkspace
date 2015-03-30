@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.regex.*;
 import java.net.*;
 import java.io.*;
 import java.text.*;
@@ -12,38 +13,86 @@ interface Config{
 
 class Contenthandler{
 
-	public static boolean urlVerify(String url){
+	public static URL urlVerify(String url){
 		//TODO verify if the url is legal
-		if(!url.toLowerCase().startsWith("http://")){
-			return false;
+		if(!url.toLowerCase().startsWith("http://") && !url.toLowerCase().startsWith("https://")){
+			return null;
 		}
-	}
 
-	private void getLinkUrl(){
-		//TODO find link url
-	}
-
-	private void getPicUrl(){
-		//TODO find pictuire url
+		URL verifiedUrl = null;
+		try{
+			verifiedUrl = new URL(url);
+		}catch(Exception e){
+			return null;
+		}
+		return verifiedUrl;
 	}
 
 	public static void processContent(String content){
 		//TODO get pic url and link url from the content and add them into download queues
+		//String searchImgReg = "(?x)(src|SRC|background|BACKGROUND)=('|\")/?(([\\w-]+/)*([\\w-]+\\.(jpg|JPG|png|PNG|gif|GIF)))('|\")"; 
+		//String searchImgReg2 = "(?x)(src|SRC|background|BACKGROUND)=('|\")(http://([\\w-]+\\.)+[\\w-]+(:[0-9]+)*(/[\\w-]+)*(/[\\w-]+\\.(jpg|JPG|png|PNG|gif|GIF)))('|\")"; 
+		String searchImgReg = "<img.*?src=\"(.*?)\"";
+		Pattern p = Pattern.compile(searchImgReg);
+		Matcher m = p.matcher(content);
+		while(m.find()){
+			//System.out.println(m.group(1));
+			String picSrc = m.group(1);
+			Downloader.getPicture(picSrc);
+		}
+		
+		String searchLinkReg = "<a.*?href=\"(.*?)\"";
+		Pattern p2 = Pattern.compile(searchLinkReg);
+		Matcher m2 = p2.matcher(content);
+		while(m2.find()){
+			//System.out.println(m2.group(1));
+			String pageSrc = m2.group(1);
+			try{
+				String new_content = Downloader.getHtmlCode(pageSrc);
+				Downloader.output(new_content);
+			}catch(Exception e){
+				System.out.println("页面url抓取失败!");
+			}
+		}		
+
 	}
 }
 
 
 class Downloader{
 
+	public static void getPicture(String httpUrl){
+		BufferedInputStream in;
+		FileOutputStream file;
+		try{
+			String fileName = httpUrl.substring(httpUrl.lastIndexOf("/"));
+			String filePath = Config.PICPATH;
+			URL url = Contenthandler.urlVerify(httpUrl);
+			if(url != null){
+				in = new BufferedInputStream(url.openStream());
+				file = new FileOutputStream(new File(filePath+fileName));
+				int t;
+				while((t = in.read()) != -1){
+					file.write(t);
+				} 
+				file.close();
+				in.close();
+				System.out.println("图片下载完成！");
+			}
+		}catch(Exception e){
+			//e.printStackTrace();
+		}
+	}
+
 	public static String getHtmlCode(String httpUrl) throws IOException{
 		String content = "";
-		URL uu = new URL(httpUrl);
-		BufferedReader ii = new BufferedReader(new InputStreamReader(uu.openStream()));
+		URL url = Contenthandler.urlVerify(httpUrl);
+		BufferedReader response = new BufferedReader(new InputStreamReader(url.openStream()));
 		String input;
-		while((input = ii.readLine()) != null){
+		while((input = response.readLine()) != null){
 			content += input;
 		}
-		ii.close();
+		response.close();
 		return content;
 	}
 
@@ -54,7 +103,7 @@ class Downloader{
 		}
 
 		Date date = new Date();
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS");
 		String filename = formatter.format(date) + ".html";
 		//System.out.println(Config.FILEPATH);
 		//System.out.println(filename);
@@ -74,21 +123,25 @@ class Downloader{
 			e.printStackTrace();
 		}
 
-		System.out.println("Done!");
+		//System.out.println("Done!");
 	}	
 }
 
 
 public class DownloadPage{
 	public static void main(String[] args){
-		String url = "http://www.baidu.com";
+		String url = "http://blog.chinaunix.net/uid-26284395-id-3135495.html";
+		String picUrl = "http://passport.ixpub.net/data/avatar/026/73/28/49_avatar_small.jpg";
 		String result=" ";
 		try{
 			result = Downloader.getHtmlCode(url);
-			Downloader.output(result);
-		}catch(IOException e){
+			//Downloader.output(result);
+			Contenthandler.processContent(result);
+			//Downloader.getPicture(picUrl);
+		}catch(Exception e){
 			e.printStackTrace();
 		}
-	//System.out.println(result);
+
+		System.out.println("Done!");
 	}
 }
