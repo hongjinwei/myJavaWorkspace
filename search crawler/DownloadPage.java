@@ -8,12 +8,71 @@ interface Config{
 
 	public final static String FILEPATH = "C:\\Users\\bao\\Documents\\GitHub\\myJavaWorkspace\\search crawler\\file\\";
 	public final static String PICPATH = FILEPATH + "pic\\";
+	public final static int MAXSIZE = 20;
+	public final static int ROUND = 100;
+}
+
+class NewQueue<AnyType> extends LinkedList<AnyType> 
+{
+	static int size;
+
+	public NewQueue(int initsize)
+	{
+		try{
+			if(initsize > Config.MAXSIZE){
+				System.out.println("too large queue size!!");
+				this.size = Config.MAXSIZE;
+			}
+			this.size = initsize;
+		}catch(Exception e){
+			System.out.println("too large queue size");
+			this.size = Config.MAXSIZE;
+		}
+	}
+
+	public void qpush(AnyType s) throws Exception
+	{
+		try{
+			if(this.size() > this.size){
+				throw new Exception();
+			}
+			this.addLast(s);
+		}catch(Exception e){
+			System.out.println("队列已满");
+		}
+	}
+
+	public AnyType qpop()
+	{
+		try{
+			return this.pollFirst();
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public int getSize()
+	{
+		try{
+			return this.size();
+		}catch(Exception e){
+			e.printStackTrace();
+			return 0;
+		}
+	}
+
+	public boolean isEmpty()
+	{
+		return (this.size()<=0);
+	}
 }
 
 
 class Contenthandler{
 
-	public static URL urlVerify(String url){
+	public static URL urlVerify(String url)
+	{
 		//TODO verify if the url is legal
 		if(!url.toLowerCase().startsWith("http://") && !url.toLowerCase().startsWith("https://")){
 			return null;
@@ -28,7 +87,8 @@ class Contenthandler{
 		return verifiedUrl;
 	}
 
-	public static void processContent(String content){
+	public static void processContent(String content,NewQueue<String> q)
+	{
 		//TODO get pic url and link url from the content and add them into download queues
 		//String searchImgReg = "(?x)(src|SRC|background|BACKGROUND)=('|\")/?(([\\w-]+/)*([\\w-]+\\.(jpg|JPG|png|PNG|gif|GIF)))('|\")"; 
 		//String searchImgReg2 = "(?x)(src|SRC|background|BACKGROUND)=('|\")(http://([\\w-]+\\.)+[\\w-]+(:[0-9]+)*(/[\\w-]+)*(/[\\w-]+\\.(jpg|JPG|png|PNG|gif|GIF)))('|\")"; 
@@ -48,10 +108,11 @@ class Contenthandler{
 			//System.out.println(m2.group(1));
 			String pageSrc = m2.group(1);
 			try{
-				String new_content = Downloader.getHtmlCode(pageSrc);
-				Downloader.output(new_content);
+				q.qpush(pageSrc);
+				//String new_content = Downloader.getHtmlCode(pageSrc);
+				//Downloader.output(new_content);
 			}catch(Exception e){
-				System.out.println("页面url抓取失败!");
+				System.out.println("页面url加入队列失败!");
 			}
 		}		
 
@@ -61,7 +122,8 @@ class Contenthandler{
 
 class Downloader{
 
-	public static void getPicture(String httpUrl){
+	public static void getPicture(String httpUrl)
+	{
 		BufferedInputStream in;
 		FileOutputStream file;
 		try{
@@ -84,7 +146,8 @@ class Downloader{
 		}
 	}
 
-	public static String getHtmlCode(String httpUrl) throws IOException{
+	public static String getHtmlCode(String httpUrl) throws IOException
+	{
 		String content = "";
 		URL url = Contenthandler.urlVerify(httpUrl);
 		BufferedReader response = new BufferedReader(new InputStreamReader(url.openStream()));
@@ -96,7 +159,8 @@ class Downloader{
 		return content;
 	}
 
-	public static void output(String content)throws Exception{
+	public static void output(String content)throws Exception
+	{
 		if(content == null){
 			//TODO throw an exception
 			throw new IOException("content is null");
@@ -129,19 +193,33 @@ class Downloader{
 
 
 public class DownloadPage{
-	public static void main(String[] args){
-		String url = "http://blog.chinaunix.net/uid-26284395-id-3135495.html";
-		String picUrl = "http://passport.ixpub.net/data/avatar/026/73/28/49_avatar_small.jpg";
-		String result=" ";
-		try{
-			result = Downloader.getHtmlCode(url);
-			//Downloader.output(result);
-			Contenthandler.processContent(result);
-			//Downloader.getPicture(picUrl);
-		}catch(Exception e){
-			e.printStackTrace();
-		}
 
+	static NewQueue<String> queue = new NewQueue<String>(20);
+	static String startUrl = "http://blog.chinaunix.net/uid-26284395-id-3135495.html";
+
+	public static void main(String[] args)
+	{
+		String url,result;
+		try{
+			queue.qpush(startUrl);
+		}catch(Exception e){
+			System.out.println("error to init startUrl!");
+			e.printStackTrace();
+			return ;
+		}
+		//String picUrl = "http://passport.ixpub.net/data/avatar/026/73/28/49_avatar_small.jpg";
+		for(int round = 0;round < Config.ROUND; round++){
+				
+			try{
+				url = queue.qpop();
+				result = Downloader.getHtmlCode(url);
+				Downloader.output(result);
+				Contenthandler.processContent(result,queue);
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		}	
+		
 		System.out.println("Done!");
 	}
 }
