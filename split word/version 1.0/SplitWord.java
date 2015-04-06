@@ -25,15 +25,17 @@ class Dictionary{
 	}
 }
 
+
 public class SplitWord{
 
 	static int MAX = 50;
 	static int MAX_LEN = 10;
-	//static String raw_str = "appleisdelicasddarisgoodpaaaa";
-	static String raw_str = "adminappleisdelicious";
+	static String raw_str = "appleisdelicasddarisgoodpaaaa";
+	//static String raw_str = "adminappleisdelicious";
 
 	static Dictionary dict = new Dictionary();
-	static String[] guessStr = new String[MAX]; 
+	//static String[] guessStr = new String[MAX]; 
+	static LinkedList<String> q = new LinkedList<String>();
 	static String[] result = new String[MAX];	
 
 	static int start = 0;
@@ -71,16 +73,18 @@ public class SplitWord{
 					}
 				
 					//System.out.println("suffix: " + suffix + " now i: " + i + " length: "+ str.length());
-					guessStr[end] = prefix + guessWord + suffix;
+					//guessStr[end] = prefix + guessWord + suffix;
+					q.add(prefix + guessWord + suffix);
 					//System.out.println(guessStr[end] + "\n" + "======" );
 				
 					if(i >= str.length()){
-						result[resNum] = guessStr[end];
+						//result[resNum] = guessStr[end];
+						result[resNum] = q.pollLast().toString();
 						resNum++;
-						end--;
+						//end--;
 					}
 				
-					end++;
+					//end++;
 				}
 			}
 		}catch(Exception e){}
@@ -116,12 +120,17 @@ public class SplitWord{
 
 	public static void main(String[] args)
 	{
-		guessStr[0] = raw_str;
-		end++;
+		//guessStr[0] = raw_str;
+		//end++;
+		q.add(raw_str);
+
+
 		try{
-			while(start <= end){
-				guess(guessStr[start]);			
-				start++;
+			//while(start <= end){
+			while(q.size() != 0){
+				//guess(guessStr[start]);			
+				//start++;
+				guess(q.pollFirst().toString());
 			}
 	
 			if(resNum == 0){
