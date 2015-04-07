@@ -55,6 +55,7 @@ public class SplitWord{
 
 		String guessWord;
 		String prefix,suffix;
+		String tmp;
 		try{
 			for(int i = start; (i-start) <= MAX_LEN && i <= str.length(); i++){
 				guessWord = str.substring(start,i);
@@ -71,19 +72,21 @@ public class SplitWord{
 						suffix = "";
 					}
 				
-					p++;
-					guessStr[p] = prefix + guessWord + suffix;
-					
+					//p++;
+					//guessStr[p] = prefix + guessWord + suffix;
+					tmp = prefix + guessWord + suffix;
+					q.addFirst(tmp);
+
 					if(i >= str.length()){
-						result[resNum++] = guessStr[p];
+						result[resNum++] = tmp;//guessStr[p];
 						return true;
 					}
 				}
 			}
-			for(int k=p;k>0;k--){
-				q.add(guessStr[k]);
+			//for(int k=p;k>0;k--){
+			//	q.add(guessStr[k]);
 				//System.out.println(guessStr[k]);
-			}
+			//}
 		}catch(Exception e){}
 		
 		return false;
