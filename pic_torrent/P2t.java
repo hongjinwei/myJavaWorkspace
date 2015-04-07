@@ -2,6 +2,7 @@ import java.io.*;
 import java.util.*;
 import java.io.FilenameFilter;
 import java.text.*;
+import java.util.regex.*;
 
 public class P2t{
 
@@ -25,13 +26,20 @@ public class P2t{
 		return timeStamp;
 	}
 
+	public static String reName(String fileName)
+	{
+		String suffix = fileName.substring(fileName.lastIndexOf("."));
+		return timeStamp() + suffix;
+	}
+
 	public static void appendFile(String fileName,String contentFileName)
 	{
 		try{
+
 			String content = "";
 			FileInputStream in = new FileInputStream(RAW_PIC_PATH + fileName);
 			FileInputStream in2 = new FileInputStream(RAW_TORRENT_PATH + contentFileName);
-			FileOutputStream out = new FileOutputStream(PROCESSED_PIC_PATH + fileName);
+			FileOutputStream out = new FileOutputStream(PROCESSED_PIC_PATH + reName(fileName));
 			int tmpByte;
 			while((tmpByte = in.read()) != -1){
 				out.write(tmpByte);
@@ -73,6 +81,31 @@ public class P2t{
 
 	}
 
+	public static void parse_torrent(String fileName)
+	{
+		try{
+			RandomAccessFile f = new RandomAccessFile(fileName,"r");
+			f.skipBytes(2);
+			long size=0;
+			int b;
+			for(int i=0;i<4;i++){
+				b = f.read();
+				size = size + (b << (8*i));
+			}		
+
+			//System.out.println(s/1024);
+			f.seek(size);
+
+			FileOutputStream out = new FileOutputStream(PROCESSED_TORRENT_PATH + reName("x.torrent"));
+			while((b = f.read()) != -1){
+				out.write(b);
+			}			
+
+			f.close();
+		}catch(Exception e){
+
+		}
+	}
 
 	public static void pic2torrent()
 	{
@@ -80,15 +113,20 @@ public class P2t{
 		String[] files = path.list();
 		for(String filename : files){
 			if(filename.endsWith(".bmp")){
-				
+				parse_torrent(PROCESSED_PIC_PATH + filename);
 			}
 		}
 	}
+
 	public static void main(String[] args)
 	{
 		//System.out.println(getpath());
 		try{
-			torrent2pic();
+			if(args[0].equals("p2t")){
+				pic2torrent();
+			}else{
+				torrent2pic();
+			}
 		}catch(Exception e){
 			e.printStackTrace();
 		}
