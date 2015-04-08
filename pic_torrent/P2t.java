@@ -46,7 +46,7 @@ public class P2t{
 			}
 
 			while((tmpByte = in2.read()) != -1){
-				out.write(tmpByte);
+				out.write(tmpByte + 1);
 			}
 		}catch(Exception e){
 			e.printStackTrace();
@@ -98,7 +98,7 @@ public class P2t{
 
 			FileOutputStream out = new FileOutputStream(PROCESSED_TORRENT_PATH + reName("x.torrent"));
 			while((b = f.read()) != -1){
-				out.write(b);
+				out.write(b-1);
 			}			
 
 			f.close();
