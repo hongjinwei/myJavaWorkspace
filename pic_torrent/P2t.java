@@ -12,6 +12,16 @@ public class P2t{
 	static String PROCESSED_PIC_PATH = PATH + "processed\\pic\\";
 	static String PROCESSED_TORRENT_PATH = PATH + "processed\\torrent\\";
 
+	public static int encrypt(int a)
+	{
+		return (a+10)%0xff;
+	}
+
+	public static int decrypt(int a)
+	{
+		return (a-10+0xff)%0xff;
+	}
+
 	public static String getpath()
 	{
 		String path = System.getProperty("user.dir");
@@ -46,7 +56,7 @@ public class P2t{
 			}
 
 			while((tmpByte = in2.read()) != -1){
-				out.write(tmpByte + 1);
+				out.write(encrypt(tmpByte));
 			}
 		}catch(Exception e){
 			e.printStackTrace();
@@ -98,7 +108,7 @@ public class P2t{
 
 			FileOutputStream out = new FileOutputStream(PROCESSED_TORRENT_PATH + reName("x.torrent"));
 			while((b = f.read()) != -1){
-				out.write(b-1);
+				out.write(decrypt(b));
 			}			
 
 			f.close();
