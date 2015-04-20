@@ -6,7 +6,7 @@ import java.text.*;
 
 interface Config{
 
-	public final static String FILEPATH = "C:\\Users\\bao\\Documents\\GitHub\\myJavaWorkspace\\search crawler\\file\\";
+	public final static String FILEPATH = "C:\\Users\\bao\\Documents\\GitHub\\myJavaWorkspace\\search crawler\\veriosn 1.0\\file\\";
 	public final static String PICPATH = FILEPATH + "pic\\";
 	public final static int MAXSIZE = 20;
 	public final static int ROUND = 100;
