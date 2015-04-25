@@ -113,9 +113,9 @@ public class SplitWord{
 							err.put(str.substring(i));
 						}
 					}
-					if(blank.size() > 0){
-						blank.pop();
-					}
+					//if(blank.size() > 0){
+					//	blank.pop();
+					//}
 				}
 			}
 		}catch(Exception e){			
