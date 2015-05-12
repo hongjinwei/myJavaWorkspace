@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+	<!-- 根据配置，设置解析html后我们需要解析的json串的pid  -->
+	<sina>
+		<pid>pl_common_searchTop</pid>
+		<pid>plc_main</pid>
+		<pid>pl_weibo_race</pid>
+		<pid>pl_weibo_directright</pid>
+		<pid>pl_common_ad</pid>
+		<pid>pl_weibo_filtertab</pid>
+		<pid>pl_common_shishi</pid>
+		<pid>pl_weibo_hotband</pid>
+		<pid>pl_common_subscribe</pid>
+	</sina>
+</configuration>
